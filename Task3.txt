@@ -1,0 +1,69 @@
+1. How is web3 used in componentDidMount? 
+   How does the user connect to the blockchain network? 
+   This is metamask!
+
+    a. We first initialize an instance of a web3 library 
+    and find out whether we use modern or a legacy dapp browser.
+
+    b. Then we get the accounts for the current user using web3
+
+    c. we then get the contract instance by first getting the networkId from the web3.eth
+       It allows us to interact with Ethereum blockchain
+    
+    d. We then look for the network with the queried ID in the list of all networks in MerchToken contract.
+
+    e. next we initialize a new instance of a contract with the parameters we queried above, including address.
+
+    f. next we update the state of a React component to reflect the information that we just received
+
+
+2. pick one function: fetchLoot, addLoot, or buyLoot
+   explain in detail what it is doing and how it works. 
+   Every line please!
+
+    // async function that fetches the loot
+   fetchLoot = async () => {
+    // fetch information about the contract, user's accounts, tags, and merchTypes from the state of the React app
+    const { contract, accounts, tags, merchTypes } = this.state;
+    // set state to initializing. aka loading as they do it in React usually
+    this.setState({ initializing: true });
+
+    // get the current number of tokens in the contract
+    const numTokens = await contract.methods.totalSupply().call();
+    // initialize an empty array of potential available tokens
+    const available = [];
+    // initialize an empty array of potential owned tokens
+    const owned = [];
+    // iterate through each token
+    for (let i = 0; i < numTokens; i++) {
+      // get token's id
+      const tokenId = await contract.methods.tokenByIndex(i).call();
+      // get token itself by it's id from the previous line
+      const token = await contract.methods.getToken(tokenId).call();
+      // get the owner of the previously obtained token
+      const owner = await contract.methods.ownerOf(tokenId).call();
+      // create an object deciphered that stores the deciphered/parsed information
+      const deciphered = {
+        // id of the token obtained above
+        id: tokenId,
+        // name of the token, parsed from a previously obtained object
+        name: token._name,
+        // picture of the token, parsed from a previously obtained object
+        picture: token._picture,
+        // token's status: for sale or not, parsed from a previously obtained object
+        forSale: token._forSale,
+        // price of the token, parsed from a previously obtained object
+        price: token._ints[0],
+        // tag associated with the token, parsed from a previously obtained object. Defined in the .sol contract file
+        tag: tags[token._ints[1]],
+        // merchType of the token, parsed from a previously obtained object. Defined in the .sol contract file
+        type: merchTypes[token._ints[2]],
+      }
+      // if the current user owns the token, push the deciphered object (containing all info about it) to the owned array
+      if (owner == accounts[0]) owned.push(deciphered);
+      // if the forSale flag is set to true, push the deciphered object (containing all info about it) to the available array
+      if (deciphered.forSale) available.push(deciphered);
+    }
+    // finish initializing, and update the state with the information about owned and available tokens
+    this.setState({ initializing: false, available, owned });
+  }

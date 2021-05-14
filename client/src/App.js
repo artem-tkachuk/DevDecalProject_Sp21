@@ -97,7 +97,7 @@ class App extends Component {
         this.setState({ addDialogShown: false });
       }, (err) => {
         console.error(err);
-        alert('Creating the token faile!');
+        alert('Creating the token failed!');
         this.setState({ addDialogShown: false });
       })
   }
@@ -113,7 +113,7 @@ class App extends Component {
       this.setState({ buying: null });
     }, (err) => {
       console.error(err);
-      alert('Creating the token faile!');
+      alert('Creating the token failed!');
       this.setState({ buying: null });
     })
   }
